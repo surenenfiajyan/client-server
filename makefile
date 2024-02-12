@@ -10,19 +10,19 @@ _output_dir:
 	mkdir -p output
 
 # Object files
-OBJ=util.o
+OBJ=output/util.o
 
 # Compile util.c into util.o
 util.o: util.c util.h _output_dir
-	$(CC) $(CFLAGS) -c util.c -o output/util.o
+	$(CC) $(CFLAGS) -c util.c -o $(OBJ)
 
 # Compile client.c into binary output/client
-output/client: client.c $(OBJ) _output_dir
-	$(CC) $(CFLAGS) client.c -o output/client
+output/client: client.c util.o _output_dir
+	$(CC) $(CFLAGS) client.c $(OBJ) -o output/client
 
 # Compile server.c into binary output/server
-output/server: server.c $(OBJ) _output_dir
-	$(CC) $(CFLAGS) server.c -o output/server
+output/server: server.c util.o _output_dir
+	$(CC) $(CFLAGS) server.c $(OBJ) -o output/server
 
 
 # Clean up all
