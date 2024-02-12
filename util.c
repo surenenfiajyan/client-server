@@ -4,6 +4,10 @@ const Command shellCommand = {6, "shell "};
 const Command connectCommand = {8, "connect "};
 const Command disconnectCommand = {10, "disconnect"};
 
+inline bool isSpace(char c) {
+	return c == ' ' || c == '\n' || c == '\t';
+}
+
 char *findFirstNonSpace(char *str)
 {
 	if (!str)
@@ -11,7 +15,7 @@ char *findFirstNonSpace(char *str)
 		return NULL;
 	}
 
-	while (*str && *str == ' ')
+	while (isSpace(*str))
 	{
 		++str;
 	}
@@ -31,7 +35,7 @@ char *trimFragmentInPlace(char *str)
 
 	char *p = str + length - 1;
 
-	while (p >= str && *p == ' ')
+	while (p >= str && isSpace(*p))
 	{
 		*p = 0;
 		--p;

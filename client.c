@@ -49,7 +49,7 @@ int main()
 
 		if (unknownommand)
 		{
-			printf("Unrecognized command: %s\n", trimmedFromStart);
+			printf("Unrecognized or incomplete command: %s\n", trimmedFromStart);
 		}
 	}
 
