@@ -18,4 +18,12 @@ extern const Command disconnectCommand;
 extern char *findFirstNonSpace(char *);
 extern char *trimFragmentInPlace(char *);
 
+inline bool isInlineSpace(char c) {
+	return c == ' ' || c == '\t';
+}
+
+inline bool isSpace(char c) {
+	return isInlineSpace(c) || c == '\n';
+}
+
 #endif

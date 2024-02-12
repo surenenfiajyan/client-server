@@ -1,12 +1,8 @@
 #include "util.h"
 
-const Command shellCommand = {6, "shell "};
-const Command connectCommand = {8, "connect "};
+const Command shellCommand = {5, "shell"};
+const Command connectCommand = {7, "connect"};
 const Command disconnectCommand = {10, "disconnect"};
-
-inline bool isSpace(char c) {
-	return c == ' ' || c == '\n' || c == '\t';
-}
 
 char *findFirstNonSpace(char *str)
 {

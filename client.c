@@ -2,15 +2,18 @@
 
 char *executeShell(const char *command)
 {
+	printf("executeShell '%s'\n", command);
 	return NULL;
 }
 
 void executeConnect(const char *addr)
 {
+	printf("executeConnect '%s'\n", addr);
 }
 
 void executeDisonnect()
 {
+	printf("executeDisonnect\n");
 }
 
 int main()
@@ -23,13 +26,15 @@ int main()
 		char *trimmedFromStart = findFirstNonSpace(lineBuffer);
 		bool unknownommand = false;
 
-		if (strncmp(trimmedFromStart, shellCommand.prefix, shellCommand.length) == 0)
+		if (strncmp(trimmedFromStart, shellCommand.prefix, shellCommand.length) == 0 &&
+			isInlineSpace(trimmedFromStart[shellCommand.length]))
 		{
-			executeShell(trimmedFromStart + shellCommand.length);
+			executeShell(trimFragmentInPlace(trimmedFromStart + shellCommand.length + 1));
 		}
-		else if (strncmp(trimmedFromStart, connectCommand.prefix, connectCommand.length) == 0)
+		else if (strncmp(trimmedFromStart, connectCommand.prefix, connectCommand.length) == 0 &&
+				 isInlineSpace(trimmedFromStart[connectCommand.length]))
 		{
-			executeConnect(trimFragmentInPlace(trimmedFromStart + connectCommand.length));
+			executeConnect(trimFragmentInPlace(trimmedFromStart + connectCommand.length + 1));
 		}
 		else if (strncmp(trimmedFromStart, disconnectCommand.prefix, disconnectCommand.length) == 0)
 		{
