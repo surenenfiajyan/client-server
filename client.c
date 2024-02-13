@@ -45,12 +45,7 @@ void executeConnect(char *addr)
 		error = true;
 	}
 
-	if (!error && bind(socketId, (struct sockaddr *)&server, sizeof(server)) == -1)
-	{
-		error = true;
-	}
-
-	if (!error && listen(socketId, 5) == -1)
+	if (!error && connect(socketId, (struct sockaddr *)&server, sizeof(server)) == -1)
 	{
 		error = true;
 	}
