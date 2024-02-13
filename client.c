@@ -47,7 +47,7 @@ void executeShell(const char *command)
 		socketId = -1;
 	}
 
-	printf("\n");
+	printf("\nDone\n");
 }
 
 void executeConnect(char *addr)
@@ -98,6 +98,8 @@ void executeConnect(char *addr)
 
 		return;
 	}
+
+	puts("Done.");
 }
 
 void executeDisonnect()
@@ -110,6 +112,7 @@ void executeDisonnect()
 
 	close(socketId);
 	socketId = -1;
+	puts("Done.");
 }
 
 int main()
