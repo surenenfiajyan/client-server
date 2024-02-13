@@ -30,6 +30,10 @@ void executeDisonnect()
 		puts("Already disconnected.");
 		return;
 	}
+
+	close(socketId);
+	socketId = -1;
+	bzero(&server, sizeof(server));
 }
 
 int main()
