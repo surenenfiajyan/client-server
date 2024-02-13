@@ -4,7 +4,7 @@ int main(int argc, char *argv[])
 {
 	if (argc < 2)
 	{
-		puts("Please provide port number");
+		puts("Please provide a port number");
 		return 0;
 	}
 
