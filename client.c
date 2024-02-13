@@ -2,16 +2,38 @@
 
 struct sockaddr_in server;
 int socketId = -1;
-char *responseBufer = NULL;
 
-const char *executeShell(const char *command)
+void executeShell(const char *command)
 {
+	char buffer[1025];
+	buffer[sizeof(buffer) - 1] = 0;
+
 	if (socketId < 0)
 	{
-		return "Please, connect to the server fisrst.";
+		puts("Please, connect to the server first.");
 	}
 
-	return "Some result";
+	ssize_t byteSent = send(socketId, command, strlen(command), 0);
+
+	if (byteSent == -1) {
+		printf("Could not send to the server: %s\n", strerror(errno));
+	}
+
+	ssize_t bytesRead;
+
+	do {
+		bytesRead = recv(socketId, buffer, sizeof(buffer) - 1, 0);
+
+		if (bytesRead == -1) {
+			printf("Could not receive from the server: %s\n", strerror(errno));
+			return;
+		}
+
+		buffer[bytesRead] = 0;
+		printf("%s", buffer);
+	} while (bytesRead > 0);
+
+	printf("\n");
 }
 
 void executeConnect(char *addr)
@@ -89,7 +111,7 @@ int main()
 		if (strncmp(trimmedFromStart, shellCommand.prefix, shellCommand.length) == 0 &&
 			isInlineSpace(trimmedFromStart[shellCommand.length]))
 		{
-			puts(executeShell(trimFragmentInPlace(trimmedFromStart + shellCommand.length + 1)));
+			executeShell(trimFragmentInPlace(trimmedFromStart + shellCommand.length + 1));
 		}
 		else if (strncmp(trimmedFromStart, connectCommand.prefix, connectCommand.length) == 0 &&
 				 isInlineSpace(trimmedFromStart[connectCommand.length]))
@@ -119,9 +141,7 @@ int main()
 	}
 
 	free(lineBuffer);
-	free(responseBufer);
 	lineBuffer = NULL;
-	responseBufer = NULL;
 
 	if (socketId >= 0)
 	{
