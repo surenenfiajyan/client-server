@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <pthread.h> 
 
 typedef struct Cmd {
 	size_t length;

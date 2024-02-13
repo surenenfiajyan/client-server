@@ -2,9 +2,52 @@
 
 struct sockaddr_in address;
 int socketId = -1;
+const int MAX_CLIENTS = 5;
+_Atomic int clients;
+
+void *connectionHandler(void *input)
+{
+	int clientSocketId = *((int *)input);
+	printf("connectionHandler: %i", clientSocketId);
+	ssize_t bytesRead;
+	char buffer[1025];
+
+	do
+	{
+		bytesRead = recv(clientSocketId, buffer, sizeof(buffer) - 1, 0);
+		if (bytesRead < 0)
+		{
+			printf("Could not receive from the client: %s\n", strerror(errno));
+			close(clientSocketId);
+			return NULL;
+		}
+
+		buffer[bytesRead] = 0;
+		printf("%s", buffer);
+	} while (bytesRead > 0);
+
+	send(clientSocketId, "hello", strlen("hello"), 0);
+
+	--clients;
+	close(clientSocketId);
+	return NULL;
+}
 
 void handleRequests()
 {
+	socklen_t addressLength = sizeof(address);
+	int clientSocketId = accept(socketId, (struct sockaddr *)&address, &addressLength);
+	printf("handleRequests: %i", clientSocketId);
+
+	if (clients >= 5)
+	{
+		close(clientSocketId);
+		return;
+	}
+
+	++clients;
+	pthread_t tid;
+	pthread_create(&tid, NULL, connectionHandler, &clientSocketId);
 }
 
 int main(int argc, char *argv[])
