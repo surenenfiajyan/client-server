@@ -15,7 +15,7 @@ void executeShell(const char *command)
 
 	ssize_t byteSent = send(socketId, command, strlen(command), MSG_NOSIGNAL);
 
-	if (byteSent == -1)
+	if (byteSent < 0)
 	{
 		printf("Could not send to the server: %s\n", strerror(errno));
 	}
@@ -26,7 +26,7 @@ void executeShell(const char *command)
 	{
 		bytesRead = recv(socketId, buffer, sizeof(buffer) - 1, 0);
 
-		if (bytesRead == -1)
+		if (bytesRead < 0)
 		{
 			printf("Could not receive from the server: %s\n", strerror(errno));
 			return;
@@ -65,12 +65,12 @@ void executeConnect(char *addr)
 	socketId = socket(AF_INET, SOCK_STREAM, 0);
 	bool error = false;
 
-	if (socketId == -1)
+	if (socketId < 0)
 	{
 		error = true;
 	}
 
-	if (!error && connect(socketId, (struct sockaddr *)&server, sizeof(server)) == -1)
+	if (!error && connect(socketId, (struct sockaddr *)&server, sizeof(server)) < 0)
 	{
 		error = true;
 	}
@@ -106,7 +106,7 @@ int main()
 	char *lineBuffer = NULL;
 	size_t len = 0;
 
-	while (getline(&lineBuffer, &len, stdin) != -1)
+	while (getline(&lineBuffer, &len, stdin) >= 0)
 	{
 		char *trimmedFromStart = findFirstNonSpace(lineBuffer);
 		bool unknownommand = false;
