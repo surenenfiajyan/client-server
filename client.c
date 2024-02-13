@@ -15,16 +15,19 @@ void executeShell(const char *command)
 
 	ssize_t byteSent = send(socketId, command, strlen(command), 0);
 
-	if (byteSent == -1) {
+	if (byteSent == -1)
+	{
 		printf("Could not send to the server: %s\n", strerror(errno));
 	}
 
 	ssize_t bytesRead;
 
-	do {
+	do
+	{
 		bytesRead = recv(socketId, buffer, sizeof(buffer) - 1, 0);
 
-		if (bytesRead == -1) {
+		if (bytesRead == -1)
+		{
 			printf("Could not receive from the server: %s\n", strerror(errno));
 			return;
 		}
