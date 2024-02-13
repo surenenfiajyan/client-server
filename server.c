@@ -22,7 +22,6 @@ void *connectionHandler(void *input)
 		}
 
 		buffer[bytesRead] = 0;
-		printf("%s\n", buffer);
 
 		if (!buffer[bytesRead - 1]) {
 			send(clientSocketId, "hello", strlen("hello") + 1, 0);
