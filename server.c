@@ -9,11 +9,14 @@ void *connectionHandler(void *input)
 {
 	long long clientSocketId = (long long)input;
 	ssize_t bytesRead;
-	char buffer[1025];
+	char readBuffer[1025];
+	size_t commandBufferSize = 64, commandBufferSizeUsed = 0;
+	char *commandBuffer = malloc(commandBufferSize);
 
 	do
 	{
-		bytesRead = recv(clientSocketId, buffer, sizeof(buffer) - 1, 0);
+		bytesRead = recv(clientSocketId, readBuffer, sizeof(readBuffer) - 1, 0);
+
 		if (bytesRead < 0)
 		{
 			printf("Could not receive from the client: %s\n", strerror(errno));
@@ -21,14 +24,44 @@ void *connectionHandler(void *input)
 			return NULL;
 		}
 
-		buffer[bytesRead] = 0;
+		readBuffer[bytesRead] = 0;
 
-		if (!buffer[bytesRead - 1]) {
-			send(clientSocketId, "hello", strlen("hello") + 1, 0);
+		if (commandBufferSizeUsed + bytesRead >= commandBufferSize)
+		{
+			commandBufferSize = commandBufferSizeUsed + bytesRead + commandBufferSize / 5;
+			commandBuffer = realloc(commandBuffer, commandBufferSize);
+		}
+
+		strcpy(commandBuffer + commandBufferSizeUsed, readBuffer);
+		commandBufferSizeUsed += bytesRead;
+
+		if (commandBufferSizeUsed && (!bytesRead || !readBuffer[bytesRead - 1]))
+		{
+			commandBufferSizeUsed = 0;
+			puts(commandBuffer);
+			FILE *fpipe = popen(commandBuffer, "r");
+
+			if (fpipe)
+			{
+				while (fgets(readBuffer, sizeof(readBuffer), fpipe) != NULL)
+				{
+					send(clientSocketId, readBuffer, strlen(readBuffer), 0);
+				}
+
+				send(clientSocketId, "", 1, 0);
+				pclose(fpipe);
+			}
+			else
+			{
+				puts(strerror(errno));
+				const char *message = "Error occurred";
+				send(clientSocketId, message, strlen(message) + 1, 0);
+			}
 		}
 	} while (bytesRead > 0);
 
 	--clients;
+	free(commandBuffer);
 	close(clientSocketId);
 	return NULL;
 }
@@ -40,14 +73,15 @@ void handleRequests()
 
 	if (clients >= 5)
 	{
-		send(clientSocketId, "Max client count exceeded", strlen("Max client count exceeded") + 1, 0);
+		const char *message = "Max client count exceeded";
+		send(clientSocketId, message, strlen(message) + 1, 0);
 		close(clientSocketId);
 		return;
 	}
 
 	++clients;
 	pthread_t tid;
-	pthread_create(&tid, NULL, connectionHandler, (void*)clientSocketId);
+	pthread_create(&tid, NULL, connectionHandler, (void *)clientSocketId);
 }
 
 int main(int argc, char *argv[])

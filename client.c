@@ -34,13 +34,15 @@ void executeShell(const char *command)
 
 		buffer[bytesRead] = 0;
 		printf("%s", buffer);
-		
-		if (!buffer[bytesRead - 1]) {
+
+		if (!bytesRead || !buffer[bytesRead - 1])
+		{
 			break;
 		}
 	} while (bytesRead > 0);
 
-	if (bytesRead < 1) {
+	if (bytesRead < 1)
+	{
 		close(socketId);
 		socketId = -1;
 	}
