@@ -1,5 +1,5 @@
 ## How to build
-In a Linux environment in the project root directory run `make`. This will compile server and client binaries in `output` firecory. Make sure `gcc` and `make` packages are installed.
+In a Linux environment in the project root directory run `make`. This will compile server and client binaries in `output` direcory. Make sure `gcc` and `make` packages are installed.
 ## How to run
 ### Client
 Run `client` binary in the `output` direcotory
