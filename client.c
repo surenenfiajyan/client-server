@@ -13,7 +13,7 @@ void executeShell(const char *command)
 		return;
 	}
 
-	ssize_t byteSent = send(socketId, command, strlen(command), 0);
+	ssize_t byteSent = send(socketId, command, strlen(command), MSG_NOSIGNAL);
 
 	if (byteSent == -1)
 	{
