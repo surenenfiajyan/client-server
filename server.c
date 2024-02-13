@@ -12,6 +12,7 @@ void *connectionHandler(void *input)
 	char readBuffer[1025];
 	size_t commandBufferSize = 64, commandBufferSizeUsed = 0;
 	char *commandBuffer = malloc(commandBufferSize);
+	send(clientSocketId, "", 1, 0);
 
 	do
 	{

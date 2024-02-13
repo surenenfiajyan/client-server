@@ -86,9 +86,18 @@ void executeConnect(char *addr)
 		error = true;
 	}
 
+	bool errorBufferNotEmpty = false;
+	char errorBuffer[64] = {0};
+
+	if (!error)
+	{
+		recv(socketId, errorBuffer, sizeof(errorBuffer) - 1, 0);
+		error = errorBufferNotEmpty = strlen(errorBuffer) > 0;
+	}
+
 	if (error)
 	{
-		printf("Could not connect to the server: %s\n", strerror(errno));
+		printf("Could not connect to the server: %s\n", errorBufferNotEmpty ? errorBuffer : strerror(errno));
 
 		if (socketId >= 0)
 		{
