@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
 	if (listen(socketId, 5) < 0)
 	{
-		printf("Faild to listen to the socket: %s\n", strerror(errno));
+		printf("Failed to listen to the socket: %s\n", strerror(errno));
 		return 0;
 	}
 
