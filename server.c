@@ -72,7 +72,7 @@ void handleRequests()
 	socklen_t addressLength = sizeof(address);
 	long long clientSocketId = accept(socketId, (struct sockaddr *)&address, &addressLength);
 
-	if (clients >= 5)
+	if (clients >= MAX_CLIENTS)
 	{
 		const char *message = "Max client count exceeded";
 		send(clientSocketId, message, strlen(message) + 1, 0);
