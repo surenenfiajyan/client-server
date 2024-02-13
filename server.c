@@ -3,6 +3,10 @@
 struct sockaddr_in address;
 int socketId = -1;
 
+void handleRequests()
+{
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc < 2)
@@ -23,7 +27,15 @@ int main(int argc, char *argv[])
 
 	if (socketId < 0)
 	{
-		printf("Faild to craete a socket: %s\n", strerror(errno));
+		printf("Faild to create a socket: %s\n", strerror(errno));
+		return 0;
+	}
+
+	int opt = true;
+
+	if (setsockopt(socketId, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
+	{
+		printf("Faild to configure the socket: %s\n", strerror(errno));
 		return 0;
 	}
 
@@ -32,6 +44,25 @@ int main(int argc, char *argv[])
 	address.sin_family = AF_INET;
 	address.sin_port = htons(portNumber);
 	address.sin_addr.s_addr = INADDR_ANY;
+
+	if (bind(socketId, (struct sockaddr *)&address, sizeof(address)) < 0)
+	{
+		printf("Faild to bind the socket: %s\n", strerror(errno));
+		return 0;
+	}
+
+	if (listen(socketId, 5) < 0)
+	{
+		printf("Faild to listen to the socket: %s\n", strerror(errno));
+		return 0;
+	}
+
+	puts("Listening to requests...");
+
+	do
+	{
+		handleRequests();
+	} while (true);
 
 	return 0;
 }
