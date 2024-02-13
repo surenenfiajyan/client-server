@@ -10,6 +10,7 @@ void executeShell(const char *command)
 	if (socketId < 0)
 	{
 		puts("Please, connect to the server first.");
+		return;
 	}
 
 	ssize_t byteSent = send(socketId, command, strlen(command), 0);
