@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
 	if (socketId < 0)
 	{
-		printf("Faild to create a socket: %s\n", strerror(errno));
+		printf("Failed to create a socket: %s\n", strerror(errno));
 		return 0;
 	}
 
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
 	if (setsockopt(socketId, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
 	{
-		printf("Faild to configure the socket: %s\n", strerror(errno));
+		printf("Failed to configure the socket: %s\n", strerror(errno));
 		return 0;
 	}
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
 	if (bind(socketId, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
-		printf("Faild to bind the socket: %s\n", strerror(errno));
+		printf("Failed to bind the socket: %s\n", strerror(errno));
 		return 0;
 	}
 
