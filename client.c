@@ -6,7 +6,6 @@ int socketId = -1;
 void executeShell(const char *command)
 {
 	char buffer[1025];
-	buffer[sizeof(buffer) - 1] = 0;
 
 	if (socketId < 0)
 	{
