@@ -13,7 +13,7 @@ void executeShell(const char *command)
 		return;
 	}
 
-	ssize_t byteSent = send(socketId, command, strlen(command), MSG_NOSIGNAL);
+	ssize_t byteSent = send(socketId, command, strlen(command) + 1, MSG_NOSIGNAL);
 
 	if (byteSent < 0)
 	{
@@ -29,12 +29,21 @@ void executeShell(const char *command)
 		if (bytesRead < 0)
 		{
 			printf("Could not receive from the server: %s\n", strerror(errno));
-			return;
+			break;
 		}
 
 		buffer[bytesRead] = 0;
 		printf("%s", buffer);
+		
+		if (!buffer[bytesRead - 1]) {
+			break;
+		}
 	} while (bytesRead > 0);
+
+	if (bytesRead < 1) {
+		close(socketId);
+		socketId = -1;
+	}
 
 	printf("\n");
 }

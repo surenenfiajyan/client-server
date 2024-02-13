@@ -7,7 +7,7 @@ _Atomic int clients;
 
 void *connectionHandler(void *input)
 {
-	int clientSocketId = *((int *)input);
+	long long clientSocketId = (long long)input;
 	ssize_t bytesRead;
 	char buffer[1025];
 
@@ -23,9 +23,11 @@ void *connectionHandler(void *input)
 
 		buffer[bytesRead] = 0;
 		printf("%s\n", buffer);
-	} while (bytesRead > 0);
 
-	send(clientSocketId, "hello", strlen("hello"), 0);
+		if (!buffer[bytesRead - 1]) {
+			send(clientSocketId, "hello", strlen("hello") + 1, 0);
+		}
+	} while (bytesRead > 0);
 
 	--clients;
 	close(clientSocketId);
@@ -35,18 +37,18 @@ void *connectionHandler(void *input)
 void handleRequests()
 {
 	socklen_t addressLength = sizeof(address);
-	int clientSocketId = accept(socketId, (struct sockaddr *)&address, &addressLength);
+	long long clientSocketId = accept(socketId, (struct sockaddr *)&address, &addressLength);
 
 	if (clients >= 5)
 	{
-		send(clientSocketId, "Max client count exceeded", strlen("Max client count exceeded"), 0);
+		send(clientSocketId, "Max client count exceeded", strlen("Max client count exceeded") + 1, 0);
 		close(clientSocketId);
 		return;
 	}
 
 	++clients;
 	pthread_t tid;
-	pthread_create(&tid, NULL, connectionHandler, &clientSocketId);
+	pthread_create(&tid, NULL, connectionHandler, (void*)clientSocketId);
 }
 
 int main(int argc, char *argv[])
