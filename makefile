@@ -1,6 +1,6 @@
 # Compiler and flags
 CC=gcc
-CFLAGS=-Wall -O2
+CFLAGS=-Wall -O2 -pthread
 
 # All targets
 all: output/client output/server _clean_object_files
