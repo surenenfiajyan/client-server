@@ -1,5 +1,7 @@
 #include "util.h"
 
+struct sockaddr_in address;
+
 int main(int argc, char *argv[])
 {
 	if (argc < 2)
@@ -15,6 +17,8 @@ int main(int argc, char *argv[])
 		puts("Please provide a port number within range 0 - 65535");
 		return 0;
 	}
+
+	bzero(&address, sizeof(address));
 
 	return 0;
 }

@@ -57,11 +57,11 @@ void executeConnect(char *addr)
 	const char *port = trimFragmentInPlace(addr + i);
 
 	bzero(&server, sizeof(server));
-	server.sin_family = PF_INET;
+	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = inet_addr(ipAddr);
 	server.sin_port = htons(atoi(port));
 
-	socketId = socket(PF_INET, SOCK_STREAM, 0);
+	socketId = socket(AF_INET, SOCK_STREAM, 0);
 	bool error = false;
 
 	if (socketId == -1)
