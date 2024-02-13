@@ -1,19 +1,35 @@
 #include "util.h"
 
-char *executeShell(const char *command)
+struct sockaddr_in server;
+int socketId = -1;
+char *responseBufer = NULL;
+
+const char *executeShell(const char *command)
 {
-	printf("executeShell '%s'\n", command);
-	return NULL;
+	if (socketId < 0)
+	{
+		return "Please, connect to the server fisrst.";
+	}
+
+	return "Some result";
 }
 
 void executeConnect(const char *addr)
 {
-	printf("executeConnect '%s'\n", addr);
+	if (socketId >= 0)
+	{
+		puts("Please, disconnect from the already opened connection first.");
+		return;
+	}
 }
 
 void executeDisonnect()
 {
-	printf("executeDisonnect\n");
+	if (socketId < 0)
+	{
+		puts("Already disconnected.");
+		return;
+	}
 }
 
 int main()
@@ -29,7 +45,7 @@ int main()
 		if (strncmp(trimmedFromStart, shellCommand.prefix, shellCommand.length) == 0 &&
 			isInlineSpace(trimmedFromStart[shellCommand.length]))
 		{
-			executeShell(trimFragmentInPlace(trimmedFromStart + shellCommand.length + 1));
+			puts(executeShell(trimFragmentInPlace(trimmedFromStart + shellCommand.length + 1)));
 		}
 		else if (strncmp(trimmedFromStart, connectCommand.prefix, connectCommand.length) == 0 &&
 				 isInlineSpace(trimmedFromStart[connectCommand.length]))
@@ -59,6 +75,13 @@ int main()
 	}
 
 	free(lineBuffer);
+	free(responseBufer);
 	lineBuffer = NULL;
+	responseBufer = NULL;
+
+	if (socketId >= 0)
+	{
+		close(socketId);
+	}
 	return 0;
 }
