@@ -12,7 +12,7 @@ void *connectionHandler(void *input)
 	char readBuffer[1025];
 	size_t commandBufferSize = 64, commandBufferSizeUsed = 0;
 	char *commandBuffer = malloc(commandBufferSize);
-	send(clientSocketId, "", 1, 0);
+	send(clientSocketId, "", 1, MSG_NOSIGNAL);
 
 	do
 	{
@@ -46,17 +46,17 @@ void *connectionHandler(void *input)
 			{
 				while (fgets(readBuffer, sizeof(readBuffer), fpipe) != NULL)
 				{
-					send(clientSocketId, readBuffer, strlen(readBuffer), 0);
+					send(clientSocketId, readBuffer, strlen(readBuffer), MSG_NOSIGNAL);
 				}
 
-				send(clientSocketId, "", 1, 0);
+				send(clientSocketId, "", 1, MSG_NOSIGNAL);
 				pclose(fpipe);
 			}
 			else
 			{
 				puts(strerror(errno));
 				const char *message = "Error occurred";
-				send(clientSocketId, message, strlen(message) + 1, 0);
+				send(clientSocketId, message, strlen(message) + 1, MSG_NOSIGNAL);
 			}
 		}
 	} while (bytesRead > 0);
@@ -75,7 +75,7 @@ void handleRequests()
 	if (clients >= MAX_CLIENTS)
 	{
 		const char *message = "Max client count exceeded";
-		send(clientSocketId, message, strlen(message) + 1, 0);
+		send(clientSocketId, message, strlen(message) + 1, MSG_NOSIGNAL);
 		close(clientSocketId);
 		return;
 	}
