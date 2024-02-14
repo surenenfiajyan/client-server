@@ -13,6 +13,8 @@ void *connectionHandler(void *input)
 	size_t commandBufferSize = 64, commandBufferSizeUsed = 0;
 	char *commandBuffer = malloc(commandBufferSize);
 
+	printf("Client socket %lli connected, %i clients total\n", clientSocketId, clients);
+
 	int opt = 1;
 
 	if (setsockopt(clientSocketId, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt)) < 0)
@@ -61,7 +63,7 @@ void *connectionHandler(void *input)
 		strcpy(commandBuffer + commandBufferSizeUsed, readBuffer);
 		commandBufferSizeUsed += bytesRead;
 
-		if (commandBufferSizeUsed && (!bytesRead || !readBuffer[bytesRead - 1]))
+		if (bytesRead && commandBufferSizeUsed && !readBuffer[bytesRead - 1])
 		{
 			strcpy(commandBuffer + commandBufferSizeUsed - 1, " 2>&1");
 			commandBufferSizeUsed = 0;
@@ -88,6 +90,7 @@ void *connectionHandler(void *input)
 	} while (bytesRead > 0);
 
 	--clients;
+	printf("Client socket %lli disconnected, %i clients left\n", clientSocketId, clients);
 	free(commandBuffer);
 	close(clientSocketId);
 	return NULL;
