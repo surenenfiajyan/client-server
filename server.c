@@ -109,9 +109,9 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	int opt = true;
+	int opt = 1;
 
-	if (setsockopt(socketId, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
+	if (setsockopt(socketId, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
 	{
 		printf("Failed to configure the socket: %s\n", strerror(errno));
 		return 0;
