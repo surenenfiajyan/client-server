@@ -108,7 +108,7 @@ void handleRequests()
 	if (clients >= MAX_CLIENTS)
 	{
 		const char *message = "Max client count exceeded";
-		printf("%s when client socket %lli attempted connected to connect\n", message, clientSocketId);
+		printf("%s when client socket %lli attempted to connect\n", message, clientSocketId);
 		send(clientSocketId, message, strlen(message) + 1, MSG_NOSIGNAL);
 		close(clientSocketId);
 		return;
