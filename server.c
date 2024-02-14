@@ -21,6 +21,8 @@ void *connectionHandler(void *input)
 	{
 		printf("Failed to configure the socket: %s\n", strerror(errno));
 		close(clientSocketId);
+		--clients;
+		free(commandBuffer);
 		return NULL;
 	}
 
@@ -41,6 +43,8 @@ void *connectionHandler(void *input)
 		{
 			printf("Could not receive from the client: %s\n", strerror(errno));
 			close(clientSocketId);
+			--clients;
+			free(commandBuffer);
 			return NULL;
 		}
 
