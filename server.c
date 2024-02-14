@@ -12,6 +12,16 @@ void *connectionHandler(void *input)
 	char readBuffer[1025];
 	size_t commandBufferSize = 64, commandBufferSizeUsed = 0;
 	char *commandBuffer = malloc(commandBufferSize);
+
+	int opt = 1;
+
+	if (setsockopt(clientSocketId, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt)) < 0)
+	{
+		printf("Failed to configure the socket: %s\n", strerror(errno));
+		close(clientSocketId);
+		return NULL;
+	}
+
 	send(clientSocketId, "", 1, MSG_NOSIGNAL);
 
 	do
