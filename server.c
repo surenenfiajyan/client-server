@@ -71,7 +71,7 @@ void *connectionHandler(void *input)
 		{
 			strcpy(commandBuffer + commandBufferSizeUsed - 1, " 2>&1");
 			commandBufferSizeUsed = 0;
-			printf("Executing command for socket: %lli:\n%s\n", clientSocketId, commandBuffer);
+			printf("Executing command for socket %lli:\n%s\n", clientSocketId, commandBuffer);
 			FILE *fpipe = popen(commandBuffer, "r");
 
 			if (fpipe)
