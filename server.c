@@ -26,6 +26,13 @@ void *connectionHandler(void *input)
 
 	do
 	{
+		if (!commandBufferSizeUsed)
+		{
+			const char *prefix = "timeout -s SIGKILL 10 ";
+			strcpy(commandBuffer, prefix);
+			commandBufferSizeUsed = strlen(prefix);
+		}
+
 		bytesRead = recv(clientSocketId, readBuffer, sizeof(readBuffer) - 1, 0);
 
 		if (bytesRead < 0)
@@ -37,9 +44,17 @@ void *connectionHandler(void *input)
 
 		readBuffer[bytesRead] = 0;
 
-		if (commandBufferSizeUsed + bytesRead >= commandBufferSize)
+		for (int i = 0; i < bytesRead - 1; ++i)
 		{
-			commandBufferSize = commandBufferSizeUsed + bytesRead + commandBufferSize / 5;
+			if (!readBuffer[i])
+			{
+				readBuffer[i] = ' ';
+			}
+		}
+
+		if (commandBufferSizeUsed + bytesRead + 10 >= commandBufferSize)
+		{
+			commandBufferSize = commandBufferSizeUsed + bytesRead + commandBufferSize / 5 + 10;
 			commandBuffer = realloc(commandBuffer, commandBufferSize);
 		}
 
@@ -48,6 +63,7 @@ void *connectionHandler(void *input)
 
 		if (commandBufferSizeUsed && (!bytesRead || !readBuffer[bytesRead - 1]))
 		{
+			strcpy(commandBuffer + commandBufferSizeUsed - 1, " 2>&1");
 			commandBufferSizeUsed = 0;
 			puts(commandBuffer);
 			FILE *fpipe = popen(commandBuffer, "r");
