@@ -5,6 +5,26 @@ int socketId = -1;
 const int MAX_CLIENTS = 5;
 _Atomic int clients;
 
+void *rejectionHandler(void *input)
+{
+	long long clientSocketId = (long long)input;
+	const char *message = "Max client count exceeded";
+	printf("%s when client socket %lli attempted to connect\n", message, clientSocketId);
+
+	int opt = 1;
+
+	if (setsockopt(clientSocketId, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt)) < 0)
+	{
+		printf("Failed to configure the socket: %s\n", strerror(errno));
+		close(clientSocketId);
+		return NULL;
+	}
+
+	send(clientSocketId, message, strlen(message) + 1, MSG_NOSIGNAL);
+	close(clientSocketId);
+	return NULL;
+}
+
 void *connectionHandler(void *input)
 {
 	long long clientSocketId = (long long)input;
@@ -104,18 +124,15 @@ void handleRequests()
 {
 	socklen_t addressLength = sizeof(address);
 	long long clientSocketId = accept(socketId, (struct sockaddr *)&address, &addressLength);
+	pthread_t tid;
 
 	if (clients >= MAX_CLIENTS)
 	{
-		const char *message = "Max client count exceeded";
-		printf("%s when client socket %lli attempted to connect\n", message, clientSocketId);
-		send(clientSocketId, message, strlen(message) + 1, MSG_NOSIGNAL);
-		close(clientSocketId);
+		pthread_create(&tid, NULL, rejectionHandler, (void *)clientSocketId);
 		return;
 	}
 
 	++clients;
-	pthread_t tid;
 	pthread_create(&tid, NULL, connectionHandler, (void *)clientSocketId);
 }
 
