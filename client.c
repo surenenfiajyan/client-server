@@ -5,49 +5,35 @@ int socketId = -1;
 
 void executeShell(const char *command)
 {
-	char buffer[1025];
-
 	if (socketId < 0)
 	{
 		puts("Please, connect to the server first.");
 		return;
 	}
 
-	ssize_t byteSent = send(socketId, command, strlen(command) + 1, MSG_NOSIGNAL);
-
-	if (byteSent < 0)
+	if (!sendMessage(command, socketId))
 	{
 		printf("Could not send to the server: %s\n", strerror(errno));
+		close(socketId);
+		socketId = -1;
+		return;
 	}
 
-	ssize_t bytesRead;
+	char *strBuffer = NULL;
 
-	do
+	if (getMessage(socketId, &strBuffer, NULL, NULL))
 	{
-		bytesRead = recv(socketId, buffer, sizeof(buffer) - 1, 0);
-
-		if (bytesRead < 0)
-		{
-			printf("Could not receive from the server: %s\n", strerror(errno));
-			break;
-		}
-
-		buffer[bytesRead] = 0;
-		printf("%s", buffer);
-
-		if (!bytesRead || !buffer[bytesRead - 1])
-		{
-			break;
-		}
-	} while (bytesRead > 0);
-
-	if (bytesRead < 1)
+		puts(strBuffer);
+		printf("\nDone.\n");
+	}
+	else
 	{
+		printf("Could not receive from the server: %s\n", strBuffer);
 		close(socketId);
 		socketId = -1;
 	}
 
-	printf("\nDone\n");
+	free(strBuffer);
 }
 
 void executeConnect(char *addr)
@@ -81,23 +67,28 @@ void executeConnect(char *addr)
 		error = true;
 	}
 
+	if (!error && !configureInputSocket(socketId))
+	{
+		error = true;
+	}
+
 	if (!error && connect(socketId, (struct sockaddr *)&server, sizeof(server)) < 0)
 	{
 		error = true;
 	}
 
-	bool errorBufferNotEmpty = false;
-	char errorBuffer[64] = {0};
+	struct timeval tv;
+	tv.tv_sec = 20;
+	tv.tv_usec = 0;
 
-	if (!error)
+	if (!error && setsockopt(socketId, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0)
 	{
-		recv(socketId, errorBuffer, sizeof(errorBuffer) - 1, 0);
-		error = errorBufferNotEmpty = strlen(errorBuffer) > 0;
+		error = true;
 	}
 
 	if (error)
 	{
-		printf("Could not connect to the server: %s\n", errorBufferNotEmpty ? errorBuffer : strerror(errno));
+		printf("Could not connect to the server: %s\n", strerror(errno));
 
 		if (socketId >= 0)
 		{
@@ -108,7 +99,20 @@ void executeConnect(char *addr)
 		return;
 	}
 
-	puts("Done.");
+	char *errorMessage = NULL;
+
+	if (getMessage(socketId, &errorMessage, NULL, NULL))
+	{
+		puts("Done.");
+	}
+	else
+	{
+		puts(errorMessage);
+		close(socketId);
+		socketId = -1;
+	}
+
+	free(errorMessage);
 }
 
 void executeDisonnect()
@@ -124,10 +128,33 @@ void executeDisonnect()
 	puts("Done.");
 }
 
+void executeHelp()
+{
+	puts("The list of commands:");
+	puts("");
+	puts("    connect -    Connects to the server");
+	puts("        usage:   connect [HOST] [PORT]");
+	puts("        example: connect 127.0.0.1 2500");
+	puts("");
+	puts("    shell -      executes a shell command on the server");
+	puts("        usage:   shell [COMMAND]");
+	puts("        example: shell uname -a");
+	puts("");
+	puts("    disconnect - Disconnects from the server it was connected to");
+	puts("        usage:   disconnect");
+	puts("");
+	puts("    help -       Prints the list of commands");
+	puts("        usage:   help");
+	puts("");
+	puts("");
+}
+
 int main()
 {
 	char *lineBuffer = NULL;
 	size_t len = 0;
+
+	executeHelp();
 
 	while (getline(&lineBuffer, &len, stdin) >= 0)
 	{
@@ -149,6 +176,17 @@ int main()
 			if (strcmp(trimFragmentInPlace(trimmedFromStart), disconnectCommand.prefix) == 0)
 			{
 				executeDisonnect();
+			}
+			else
+			{
+				unknownommand = true;
+			}
+		}
+		else if (strncmp(trimmedFromStart, helpCommand.prefix, helpCommand.length) == 0)
+		{
+			if (strcmp(trimFragmentInPlace(trimmedFromStart), helpCommand.prefix) == 0)
+			{
+				executeHelp();
 			}
 			else
 			{
