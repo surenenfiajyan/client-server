@@ -54,9 +54,9 @@ void *connectionHandler(void *input)
 
 					if (!bytesRead)
 					{
-						printf("Before: %li\n", readBufferTotalSize);
+						//printf("Before: %li\n", readBufferTotalSize);
 						readBufferTotalSize += readBufferTotalSize / 2;
-						printf("After: %li\n", readBufferTotalSize);
+						//printf("After: %li\n", readBufferTotalSize);
 						readBuffer = realloc(readBuffer, readBufferTotalSize);
 						continue;
 					}
